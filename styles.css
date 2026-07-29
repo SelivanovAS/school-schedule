@@ -1,0 +1,685 @@
+/* ============================================================================
+   3 «А» класс — расписание уроков
+   Оформление: светлая и тёмная тема, телефон / планшет / печать.
+
+   Тему разрешает инлайн-скрипт в <head>: он ставит на <html> атрибут
+   data-resolved="light|dark". Поэтому здесь тёмные значения описаны ОДИН раз —
+   и для ручного выбора «тьма», и для автоматического режима.
+   ========================================================================== */
+
+/* ----------------------------------------------------------------- шрифт -- */
+/* Nunito лежит в самом репозитории, а не тянется с Google Fonts: в школьной
+   сети сторонний CDN может быть закрыт, а офлайн он не работает вовсе.
+   Шрифт вариативный — один файл на подмножество покрывает все начертания. */
+
+@font-face {
+  font-family: 'Nunito';
+  font-style: normal;
+  font-weight: 200 1000;
+  font-display: swap;
+  src: url('./fonts/nunito-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Nunito';
+  font-style: normal;
+  font-weight: 200 1000;
+  font-display: swap;
+  src: url('./fonts/nunito-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+                 U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+                 U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ---------------------------------------------------------------- токены -- */
+
+:root {
+  --bg-1: #f4f2ff;
+  --bg-2: #fff6ef;
+  --surface: #ffffff;
+  --surface-2: #f7f6fb;
+  --text: #221d33;
+  --muted: #6d6683;
+  --line: #e6e3f0;
+  --accent: #6c5ce7;
+  --accent-2: #a06cf0;
+  --ok: #17a55c;
+  --shadow: 0 6px 20px -10px rgba(45, 32, 88, .35);
+  --shadow-lg: 0 18px 40px -22px rgba(45, 32, 88, .55);
+
+  --radius-card: 20px;
+  --radius-hero: 26px;
+
+  --rail-time: 46px;
+  --rail-track: 14px;
+
+  --fs-xs: 12px;
+  --fs-sm: 13px;
+  --fs-md: 15px;
+  --fs-lg: 17px;
+  --fs-xl: 22px;
+
+  --font: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+          'Helvetica Neue', Arial, sans-serif;
+
+  color-scheme: light;
+}
+
+:root[data-resolved="dark"] {
+  --bg-1: #15121f;
+  --bg-2: #1e1729;
+  --surface: #211c30;
+  --surface-2: #2a2440;
+  --text: #efeafb;
+  --muted: #a9a1c2;
+  --line: #332c48;
+  --accent: #9b8bff;
+  --accent-2: #c08cff;
+  --ok: #4bd28c;
+  --shadow: 0 6px 20px -12px rgba(0, 0, 0, .8);
+  --shadow-lg: 0 20px 44px -24px rgba(0, 0, 0, .9);
+
+  color-scheme: dark;
+}
+
+/* Цвета предметов: --sc основной, --sc2 для градиента, --sb мягкая подложка */
+
+[data-c="crimson"] { --sc:#e2465f; --sc2:#f0764f; --sb:#ffe6eb; }
+[data-c="rose"]    { --sc:#df4f97; --sc2:#f2789f; --sb:#ffe5f1; }
+[data-c="amber"]   { --sc:#d9860a; --sc2:#f0b02c; --sb:#fff0d4; }
+[data-c="peach"]   { --sc:#e06b3b; --sc2:#f5a15c; --sb:#ffe8dd; }
+[data-c="blue"]    { --sc:#2f77ea; --sc2:#4fa8f0; --sb:#e2eeff; }
+[data-c="green"]   { --sc:#14a057; --sc2:#4cc47c; --sb:#dbf6e6; }
+[data-c="teal"]    { --sc:#0f9fa0; --sc2:#3fc7be; --sb:#d7f5f4; }
+[data-c="orange"]  { --sc:#ee7026; --sc2:#f7a13f; --sb:#ffe8d9; }
+[data-c="violet"]  { --sc:#8750de; --sc2:#ac74f0; --sb:#f0e5ff; }
+[data-c="indigo"]  { --sc:#565bdd; --sc2:#7f87f2; --sb:#e5e7ff; }
+[data-c="pink"]    { --sc:#df4f97; --sc2:#f2789f; --sb:#ffe5f1; }
+[data-c="cyan"]    { --sc:#0b9fc2; --sc2:#3fc5da; --sb:#d9f2fa; }
+[data-c="sky"]     { --sc:#2b96d4; --sc2:#5cb9ea; --sb:#dff0fc; }
+[data-c="lime"]    { --sc:#6fa300; --sc2:#a3c62b; --sb:#ecf7d2; }
+[data-c="slate"]   { --sc:#6a7290; --sc2:#8f97b3; --sb:#e9ebf3; }
+[data-c="unknown"] { --sc:#8a889e; --sc2:#a9a7bd; --sb:#eeedf4; }
+[data-c="accent"]  { --sc:#6c5ce7; --sc2:#a06cf0; --sb:#ece7ff; }
+
+:root[data-resolved="dark"] [data-c="crimson"] { --sc:#ff7d92; --sc2:#ffa07d; --sb:rgba(255,125,146,.16); }
+:root[data-resolved="dark"] [data-c="rose"]    { --sc:#ff86bf; --sc2:#ffa8d0; --sb:rgba(255,134,191,.16); }
+:root[data-resolved="dark"] [data-c="amber"]   { --sc:#f7bb4f; --sc2:#ffd583; --sb:rgba(247,187,79,.16); }
+:root[data-resolved="dark"] [data-c="peach"]   { --sc:#ff9a6b; --sc2:#ffbe93; --sb:rgba(255,154,107,.16); }
+:root[data-resolved="dark"] [data-c="blue"]    { --sc:#6fb0ff; --sc2:#9ccbff; --sb:rgba(111,176,255,.16); }
+:root[data-resolved="dark"] [data-c="green"]   { --sc:#57d894; --sc2:#8ae8b4; --sb:rgba(87,216,148,.16); }
+:root[data-resolved="dark"] [data-c="teal"]    { --sc:#48d7cd; --sc2:#82e8e0; --sb:rgba(72,215,205,.16); }
+:root[data-resolved="dark"] [data-c="orange"]  { --sc:#ffa35c; --sc2:#ffc38c; --sb:rgba(255,163,92,.16); }
+:root[data-resolved="dark"] [data-c="violet"]  { --sc:#bb92ff; --sc2:#d3b3ff; --sb:rgba(187,146,255,.18); }
+:root[data-resolved="dark"] [data-c="indigo"]  { --sc:#93a0ff; --sc2:#b5bdff; --sb:rgba(147,160,255,.18); }
+:root[data-resolved="dark"] [data-c="pink"]    { --sc:#ff86bf; --sc2:#ffa8d0; --sb:rgba(255,134,191,.16); }
+:root[data-resolved="dark"] [data-c="cyan"]    { --sc:#4ec8e6; --sc2:#87dcef; --sb:rgba(78,200,230,.16); }
+:root[data-resolved="dark"] [data-c="sky"]     { --sc:#6ec2f2; --sc2:#9ad8f7; --sb:rgba(110,194,242,.16); }
+:root[data-resolved="dark"] [data-c="lime"]    { --sc:#b3d84c; --sc2:#cfe98a; --sb:rgba(179,216,76,.16); }
+:root[data-resolved="dark"] [data-c="slate"]   { --sc:#9aa2be; --sc2:#b8bed4; --sb:rgba(154,162,190,.18); }
+:root[data-resolved="dark"] [data-c="unknown"] { --sc:#9a97b0; --sc2:#b6b3c8; --sb:rgba(154,151,176,.16); }
+:root[data-resolved="dark"] [data-c="accent"]  { --sc:#9b8bff; --sc2:#c08cff; --sb:rgba(155,139,255,.18); }
+
+/* ---------------------------------------------------------------- каркас -- */
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  font-size: var(--fs-md);
+  line-height: 1.4;
+  color: var(--text);
+  background: var(--bg-1);
+  background-image:
+    radial-gradient(120% 90% at 100% 0%, var(--bg-2) 0%, transparent 55%),
+    radial-gradient(100% 80% at 0% 100%, var(--bg-2) 0%, transparent 50%);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+}
+
+.bg-orbs { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.orb { position: absolute; border-radius: 50%; filter: blur(60px); opacity: .38; }
+.orb-1 { width: 260px; height: 260px; top: -80px;    left: -70px;  background: #a58bff; }
+.orb-2 { width: 220px; height: 220px; top: 22%;      right: -90px; background: #ffb37a; }
+.orb-3 { width: 240px; height: 240px; bottom: -110px; left: 20%;   background: #7fd8ff; }
+:root[data-resolved="dark"] .orb { opacity: .2; }
+
+.shell {
+  position: relative;
+  z-index: 1;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: max(14px, env(safe-area-inset-top)) 16px
+           calc(28px + env(safe-area-inset-bottom));
+}
+
+/* ----------------------------------------------------------------- шапка -- */
+
+.top { display: flex; align-items: center; gap: 12px; padding: 6px 2px 14px; }
+.top-text { flex: 1; min-width: 0; }
+
+.class-name { margin: 0; font-size: var(--fs-xl); font-weight: 800; letter-spacing: -.02em; }
+.today-date { margin: 2px 0 0; font-size: var(--fs-sm); font-weight: 600; color: var(--muted); }
+
+.icon-btn {
+  flex: 0 0 auto;
+  width: 44px; height: 44px;
+  display: grid; place-items: center;
+  font-size: 19px;
+  border: 0;
+  border-radius: 15px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: transform .15s ease;
+}
+.icon-btn:active { transform: scale(.93); }
+.icon-btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* ------------------------------------------------------- карточка «сейчас» */
+
+.now-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-hero);
+  padding: 18px 20px 20px;
+  color: #fff;
+  background-image: linear-gradient(135deg, var(--sc, #6c5ce7) 0%, var(--sc2, #a06cf0) 100%);
+  box-shadow: var(--shadow-lg);
+}
+.now-card::after {
+  content: '';
+  position: absolute;
+  top: -60%; right: -20%;
+  width: 240px; height: 240px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .16);
+  pointer-events: none;
+}
+
+.now-kicker {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  opacity: .85;
+  position: relative;
+  z-index: 1;
+}
+.now-main { display: flex; align-items: center; gap: 12px; position: relative; z-index: 1; }
+.now-icon {
+  flex: 0 0 auto;
+  width: 52px; height: 52px;
+  display: grid; place-items: center;
+  font-size: 27px;
+  border-radius: 17px;
+  background: rgba(255, 255, 255, .22);
+}
+.now-text { min-width: 0; }
+.now-title { margin: 0; font-size: 21px; font-weight: 800; letter-spacing: -.02em; line-height: 1.15; overflow-wrap: anywhere; }
+.now-title.is-long { font-size: 17px; }
+.now-left { margin: 3px 0 0; font-size: var(--fs-sm); font-weight: 700; opacity: .92; }
+
+.now-bar {
+  position: relative; z-index: 1;
+  margin-top: 14px;
+  height: 7px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, .28);
+  overflow: hidden;
+}
+.now-bar > i { display: block; height: 100%; border-radius: 99px; background: #fff; transition: width .6s ease; }
+
+.now-next { position: relative; z-index: 1; margin: 12px 0 0; font-size: var(--fs-sm); font-weight: 700; opacity: .92; }
+
+.now-pulse {
+  display: inline-block;
+  width: 8px; height: 8px;
+  margin-right: 7px;
+  border-radius: 50%;
+  background: #fff;
+  vertical-align: 1px;
+  animation: pulse 1.8s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1;  transform: scale(1); }
+  50%      { opacity: .35; transform: scale(.65); }
+}
+
+/* ------------------------------------------------------ переключатель дней */
+
+.days {
+  display: flex;
+  gap: 8px;
+  margin: 18px 0 14px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+.days::-webkit-scrollbar { display: none; }
+
+.day-pill {
+  flex: 1 1 0;
+  min-width: 58px;
+  position: relative;
+  padding: 11px 4px 14px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--surface);
+  color: var(--text);
+  font-family: inherit;
+  font-size: var(--fs-md);
+  font-weight: 800;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: transform .15s ease, background-color .2s ease, color .2s ease;
+}
+.day-pill:active { transform: scale(.95); }
+.day-pill:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.day-pill.is-active {
+  background-image: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: #fff;
+  box-shadow: 0 10px 22px -12px var(--accent);
+}
+.day-pill.is-empty { color: var(--muted); }
+.day-pill.is-active.is-empty { color: rgba(255, 255, 255, .82); }
+.day-pill .today-dot {
+  position: absolute;
+  left: 50%; bottom: 6px;
+  transform: translateX(-50%);
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.day-pill.is-active .today-dot { background: #fff; }
+
+/* --------------------------------------------------------------- лента дня */
+
+.day { min-height: 220px; }
+.day:focus { outline: none; }
+
+.day-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 2px 2px 12px;
+}
+.day-head h2 { margin: 0; font-size: var(--fs-lg); font-weight: 800; }
+.day-head span { font-size: var(--fs-sm); font-weight: 700; color: var(--muted); }
+
+.row, .pause, .day-end {
+  display: grid;
+  grid-template-columns: var(--rail-time) var(--rail-track) 1fr;
+  column-gap: 8px;
+}
+
+.row .time {
+  padding-top: 15px;
+  text-align: right;
+  font-size: var(--fs-sm);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.row.is-now .time { color: var(--sc); }
+
+.row .track { position: relative; }
+.row .track::before {
+  content: '';
+  position: absolute;
+  left: 6px; top: 0; bottom: 0;
+  width: 2px;
+  background: var(--line);
+}
+.row.is-first .track::before { top: 21px; }
+.row .track .dot {
+  position: absolute;
+  left: 0; top: 14px;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--sc, var(--line));
+  box-shadow: 0 0 0 3px var(--bg-1);
+}
+.row.is-past .track .dot { background: var(--line); }
+.row.is-now .track .dot { box-shadow: 0 0 0 3px var(--bg-1), 0 0 0 7px var(--sb); }
+
+/* карточка урока */
+
+.card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 13px 14px;
+  border: 2px solid transparent;
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  text-align: left;
+  font-family: inherit;
+  color: inherit;
+  appearance: none;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform .15s ease, box-shadow .2s ease;
+}
+.card:active { transform: scale(.985); }
+.card:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.card.is-static { cursor: default; }
+.card.is-static:active { transform: none; }
+
+.card .bubble {
+  flex: 0 0 auto;
+  width: 46px; height: 46px;
+  display: grid; place-items: center;
+  font-size: 24px;
+  border-radius: 15px;
+  background: var(--sb, var(--surface-2));
+}
+.card .txt { flex: 1; min-width: 0; }
+.card .txt h3 {
+  margin: 0;
+  font-size: var(--fs-lg);
+  font-weight: 800;
+  letter-spacing: -.01em;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+.card .txt h3.is-long { font-size: var(--fs-md); }
+.card .txt p { margin: 3px 0 0; font-size: var(--fs-xs); font-weight: 700; color: var(--muted); }
+.card .flag { flex: 0 0 auto; font-size: 15px; align-self: flex-start; }
+.card .range { display: none; }
+
+.card.is-now {
+  border-color: var(--sc);
+  background: var(--sb);
+  box-shadow: 0 12px 26px -16px var(--sc);
+}
+.card.is-now .bubble { background: var(--surface); }
+.card.is-now .txt p { color: var(--sc); }
+
+.card .progress { position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: rgba(120, 120, 140, .18); }
+.card .progress > i { display: block; height: 100%; background: var(--sc); transition: width .6s ease; }
+
+.row.is-past .card { opacity: .48; }
+.row.is-past .card .bubble { filter: grayscale(.35); }
+
+.card.is-unknown { border-style: dashed; border-color: var(--line); background: transparent; box-shadow: none; }
+.card.is-unknown .bubble { background: var(--surface-2); }
+
+/* тихая полоска перемены */
+
+.pause .track { position: relative; }
+.pause .track::before {
+  content: '';
+  position: absolute;
+  left: 6px; top: -2px; bottom: -2px;
+  width: 2px;
+  background-image: linear-gradient(var(--line) 55%, transparent 0);
+  background-size: 2px 8px;
+}
+.pause .pause-body {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 3px 0 13px;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--muted);
+}
+.pause.is-now .pause-body { color: var(--accent); }
+.pause .pause-body .mins { opacity: .72; }
+
+/* хвост дня */
+
+.day-end { align-items: center; padding-top: 2px; }
+.day-end .time {
+  text-align: right;
+  font-size: var(--fs-sm);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+.day-end .track { position: relative; height: 18px; }
+.day-end .track::before {
+  /* линия времени должна дотянуться до кружка «конец дня», а не обрываться */
+  content: '';
+  position: absolute;
+  left: 6px; top: -12px; height: 16px;
+  width: 2px;
+  background: var(--line);
+}
+.day-end .track .cap {
+  position: absolute;
+  left: 3px; top: 4px;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  border: 2px solid var(--line);
+  background: var(--bg-1);
+}
+.day-end .label { font-size: var(--fs-xs); font-weight: 700; color: var(--muted); }
+
+/* пустой день */
+
+.empty {
+  margin-top: 6px;
+  padding: 34px 24px;
+  text-align: center;
+  border: 2px dashed var(--line);
+  border-radius: var(--radius-hero);
+}
+.empty .emo { font-size: 40px; line-height: 1; }
+.empty h3 { margin: 12px 0 5px; font-size: var(--fs-lg); font-weight: 800; }
+.empty p { margin: 0; font-size: var(--fs-sm); font-weight: 600; color: var(--muted); }
+
+/* ---------------------------------------------------------------- подвал -- */
+
+.foot {
+  margin-top: 26px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  align-items: center;
+}
+.link-btn {
+  padding: 8px 0;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--muted);
+  cursor: pointer;
+}
+.link-btn:hover { color: var(--accent); }
+.link-btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+.foot-note { flex: 1 0 100%; margin: 2px 0 0; font-size: var(--fs-xs); font-weight: 600; color: var(--muted); opacity: .8; }
+
+/* ---------------------------------------------------------------- шторка -- */
+
+.sheet-wrap { position: fixed; inset: 0; z-index: 40; }
+.sheet-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(18, 12, 38, .45);
+  opacity: 0;
+  transition: opacity .25s ease;
+}
+.sheet-wrap.is-open .sheet-backdrop { opacity: 1; }
+
+.sheet {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 10px 20px calc(22px + env(safe-area-inset-bottom));
+  border-radius: 26px 26px 0 0;
+  background: var(--surface);
+  box-shadow: 0 -12px 40px -18px rgba(20, 10, 50, .5);
+  transform: translateY(102%);
+  transition: transform .28s cubic-bezier(.22, .9, .3, 1);
+}
+.sheet-wrap.is-open .sheet { transform: translateY(0); }
+
+.sheet-grip { width: 42px; height: 4px; margin: 0 auto 14px; border-radius: 99px; background: var(--line); }
+.sheet-head { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+.sheet-icon {
+  flex: 0 0 auto;
+  width: 50px; height: 50px;
+  display: grid; place-items: center;
+  font-size: 26px;
+  border-radius: 16px;
+  background: var(--sb, var(--surface-2));
+}
+.sheet-head-text { flex: 1; min-width: 0; }
+.sheet-title { margin: 0; font-size: var(--fs-lg); font-weight: 800; line-height: 1.2; overflow-wrap: anywhere; }
+.sheet-sub { margin: 3px 0 0; font-size: var(--fs-sm); font-weight: 700; color: var(--muted); }
+
+.sheet-label { display: block; margin-bottom: 7px; font-size: var(--fs-sm); font-weight: 800; }
+.hw-text {
+  width: 100%;
+  padding: 13px 14px;
+  border: 2px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 16px;               /* 16px — иначе iOS зумит страницу при фокусе */
+  font-weight: 600;
+  resize: vertical;
+}
+.hw-text:focus { outline: none; border-color: var(--accent); }
+
+.sheet-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 10px 0 2px; }
+.check { display: inline-flex; align-items: center; gap: 10px; cursor: pointer; min-height: 44px; position: relative; }
+/* Галочка нарисована через .check-box, но сам input оставлен во всю площадь
+   ярлыка: так по нему попадают и пальцем, и мышью, и с клавиатуры. */
+.check input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.check-box {
+  width: 26px; height: 26px;
+  border: 2px solid var(--line);
+  border-radius: 9px;
+  display: grid; place-items: center;
+  transition: background-color .18s ease, border-color .18s ease;
+}
+.check-box::after {
+  content: '✓';
+  font-size: 16px; font-weight: 800; color: #fff;
+  opacity: 0; transform: scale(.6);
+  transition: opacity .18s ease, transform .18s ease;
+}
+.check input:checked + .check-box { background: var(--ok); border-color: var(--ok); }
+.check input:checked + .check-box::after { opacity: 1; transform: scale(1); }
+.check input:focus-visible + .check-box { outline: 3px solid var(--accent); outline-offset: 2px; }
+.check-text { font-size: var(--fs-md); font-weight: 800; }
+
+.saved-note { font-size: var(--fs-xs); font-weight: 700; color: var(--ok); opacity: 0; transition: opacity .2s ease; }
+.saved-note.is-on { opacity: 1; }
+
+.ghost-btn {
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px;
+  border: 0;
+  border-radius: 15px;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  font-weight: 800;
+  cursor: pointer;
+}
+.ghost-btn:active { transform: scale(.98); }
+.ghost-btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* --------------------------------------------------------------- планшет -- */
+
+@media (min-width: 700px) {
+  :root { --fs-sm: 14px; --fs-md: 16px; --fs-lg: 19px; --fs-xl: 26px; --rail-time: 54px; }
+  .shell { max-width: 720px; padding-left: 26px; padding-right: 26px; }
+  .now-card { padding: 22px 26px 24px; }
+  .now-title { font-size: 25px; }
+  .now-title.is-long { font-size: 20px; }
+  .now-icon { width: 58px; height: 58px; font-size: 30px; }
+  .card { padding: 15px 17px; }
+  .card .bubble { width: 52px; height: 52px; font-size: 27px; border-radius: 17px; }
+  .card .range {
+    display: block;
+    flex: 0 0 auto;
+    padding: 6px 13px;
+    border-radius: 99px;
+    background: var(--sb, var(--surface-2));
+    color: var(--sc, var(--muted));
+    font-size: var(--fs-sm);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .card.is-now .range { background: var(--surface); }
+}
+
+@media (min-width: 950px) {
+  .shell {
+    max-width: 1040px;
+    display: grid;
+    grid-template-columns: 210px minmax(0, 1fr);
+    grid-template-areas:
+      "top  top"
+      "now  now"
+      "days day"
+      "days foot";
+    column-gap: 32px;
+    align-items: start;
+  }
+  .top { grid-area: top; }
+  .now-card { grid-area: now; }
+  .days { grid-area: days; flex-direction: column; margin-top: 24px; }
+  .day  { grid-area: day;  margin-top: 24px; }
+  .foot { grid-area: foot; }
+  .day-pill { flex: 0 0 auto; text-align: left; padding: 14px 18px; }
+  .day-pill .today-dot { left: auto; right: 16px; bottom: 50%; transform: translateY(50%); }
+  .sheet { border-radius: 26px; bottom: 24px; left: 24px; right: 24px; max-width: 520px; }
+}
+
+/* ------------------------------------------------------- бережный режим -- */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+  }
+}
+
+/* ---------------------------------------------------------------- печать -- */
+
+.print-only { display: none; }
+
+@media print {
+  .bg-orbs, .shell, .sheet-wrap { display: none !important; }
+  .print-only { display: block; }
+
+  body { background: #fff; color: #000; font-size: 11pt; }
+  .print-only h1 { font-size: 17pt; margin: 0 0 1mm; }
+  .print-only .p-sub { margin: 0 0 6mm; font-size: 9pt; color: #444; }
+  .print-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5mm; }
+  .p-day { break-inside: avoid; }
+  .p-day h2 { margin: 0 0 2mm; padding-bottom: 1mm; font-size: 11pt; border-bottom: 1.5pt solid #000; }
+  .p-row { display: flex; gap: 1.5mm; padding: 1.2mm 0; border-bottom: .4pt solid #ccc; font-size: 8pt; }
+  /* 22 мм — чтобы «09:00–09:40» умещалось в одну строку и не ломалось пополам */
+  .p-row .p-t { flex: 0 0 22mm; font-weight: 700; white-space: nowrap; }
+  .p-row.p-quiet { color: #777; }
+  @page { size: A4 landscape; margin: 12mm; }
+}

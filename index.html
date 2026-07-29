@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="ru" data-theme="auto">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>3 «А» класс — расписание уроков</title>
+  <meta name="description" content="Расписание уроков 3 «А» класса: что сейчас идёт, что дальше и что задано на дом.">
+
+  <meta name="theme-color" content="#f4f2ff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#15121f" media="(prefers-color-scheme: dark)">
+  <meta name="color-scheme" content="light dark">
+
+  <link rel="manifest" href="./manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="3 «А»">
+  <link rel="apple-touch-icon" href="./icon-180.png">
+  <link rel="icon" href="./icon-192.png" type="image/png">
+
+  <link rel="preload" href="./fonts/nunito-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="./styles.css?v=1">
+
+  <script>
+    /* Тема применяется до первой отрисовки — иначе на тёмном телефоне
+       мигает белый фон. data-theme хранит выбор (auto/light/dark),
+       data-resolved — то, что реально рисуется; по нему работает CSS. */
+    (function () {
+      var t = 'auto';
+      try { t = localStorage.getItem('sch3a_theme_v1') || 'auto'; } catch (e) { /* приватный режим */ }
+      var dark = t === 'dark' || (t === 'auto' &&
+        window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      var root = document.documentElement;
+      root.setAttribute('data-theme', t);
+      root.setAttribute('data-resolved', dark ? 'dark' : 'light');
+    })();
+  </script>
+</head>
+<body>
+
+<div class="bg-orbs" aria-hidden="true">
+  <span class="orb orb-1"></span>
+  <span class="orb orb-2"></span>
+  <span class="orb orb-3"></span>
+</div>
+
+<div class="shell">
+
+  <header class="top">
+    <div class="top-text">
+      <h1 class="class-name" id="class-name">3 «А» класс</h1>
+      <p class="today-date" id="today-date"></p>
+    </div>
+    <button class="icon-btn" id="theme-btn" type="button"
+            aria-label="Переключить оформление" title="Оформление">
+      <span id="theme-icon" aria-hidden="true">🌗</span>
+    </button>
+  </header>
+
+  <section class="now-card" id="now-card" aria-live="polite">
+    <!-- заполняется в app.js -->
+  </section>
+
+  <nav class="days" id="days" aria-label="Дни недели">
+    <!-- заполняется в app.js -->
+  </nav>
+
+  <main class="day" id="day" tabindex="-1">
+    <!-- заполняется в app.js -->
+  </main>
+
+  <footer class="foot">
+    <button class="link-btn" id="print-btn" type="button">🖨️ Распечатать неделю</button>
+    <button class="link-btn" id="clear-hw-btn" type="button">🧹 Очистить все домашки</button>
+    <p class="foot-note">Домашние задания хранятся только на этом устройстве.</p>
+  </footer>
+
+</div>
+
+<!-- Шторка урока -->
+<div class="sheet-wrap" id="sheet-wrap" hidden>
+  <div class="sheet-backdrop" id="sheet-backdrop"></div>
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+    <div class="sheet-grip" aria-hidden="true"></div>
+    <div class="sheet-head">
+      <span class="sheet-icon" id="sheet-icon" aria-hidden="true">📕</span>
+      <div class="sheet-head-text">
+        <h2 class="sheet-title" id="sheet-title">Урок</h2>
+        <p class="sheet-sub" id="sheet-sub"></p>
+      </div>
+      <button class="icon-btn" id="sheet-close" type="button" aria-label="Закрыть">✕</button>
+    </div>
+    <label class="sheet-label" for="hw-text">Что задано на дом?</label>
+    <textarea id="hw-text" class="hw-text" rows="4"
+              placeholder="Например: упражнение 145, выучить правило"></textarea>
+    <div class="sheet-row">
+      <label class="check">
+        <input type="checkbox" id="hw-done">
+        <span class="check-box" aria-hidden="true"></span>
+        <span class="check-text">Сделано</span>
+      </label>
+      <span class="saved-note" id="saved-note" aria-live="polite"></span>
+    </div>
+    <button class="ghost-btn" id="hw-clear" type="button">Очистить это задание</button>
+  </div>
+</div>
+
+<!-- Печатная версия всей недели: видна только при печати -->
+<div class="print-only" id="print-view" aria-hidden="true"></div>
+
+<script src="./data.js?v=1"></script>
+<script src="./app.js?v=1"></script>
+</body>
+</html>

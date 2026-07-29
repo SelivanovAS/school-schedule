@@ -1,0 +1,19 @@
+{
+  "name": "3 «А» класс — расписание уроков",
+  "short_name": "3 «А»",
+  "description": "Расписание уроков 3 «А» класса: что сейчас идёт, что дальше и что задано на дом.",
+  "lang": "ru",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f4f2ff",
+  "theme_color": "#6c5ce7",
+  "categories": ["education", "productivity"],
+  "icons": [
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

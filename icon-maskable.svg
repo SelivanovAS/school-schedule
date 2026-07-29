@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Расписание уроков">
+  <defs>
+    <linearGradient id="bgm" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6C5CE7"/>
+      <stop offset="1" stop-color="#A96CF0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Фон во всю площадь: маска Android может срезать до 80% по краям -->
+  <rect width="512" height="512" fill="url(#bgm)"/>
+  <circle cx="430" cy="70" r="150" fill="#ffffff" opacity="0.13"/>
+
+  <!-- Значимая часть уложена в безопасный круг диаметром ~0.8 стороны -->
+  <g transform="translate(256 256) scale(0.72) translate(-256 -256)">
+    <rect x="104" y="122" width="304" height="268" rx="46" fill="#ffffff"/>
+
+    <circle cx="158" cy="192" r="14" fill="#E2465F"/>
+    <rect x="194" y="180" width="172" height="24" rx="12" fill="#E2465F"/>
+
+    <circle cx="158" cy="256" r="14" fill="#2F77EA"/>
+    <rect x="194" y="244" width="140" height="24" rx="12" fill="#2F77EA"/>
+
+    <circle cx="158" cy="320" r="14" fill="#14A057"/>
+    <rect x="194" y="308" width="108" height="24" rx="12" fill="#14A057"/>
+  </g>
+</svg>

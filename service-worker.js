@@ -7,15 +7,15 @@
       старая версия из кэша.
    ========================================================================== */
 
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 const CACHE = 'sch3a-' + CACHE_VERSION;
 
 const SHELL = [
   './',
   './index.html',
-  './styles.css?v=1',
-  './data.js?v=1',
-  './app.js?v=1',
+  './styles.css?v=2',
+  './data.js?v=2',
+  './app.js?v=2',
   './manifest.json',
   './fonts/nunito-cyrillic.woff2',
   './fonts/nunito-latin.woff2',

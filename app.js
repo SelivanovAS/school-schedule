@@ -787,10 +787,10 @@
 
     dom.clearHwBtn.addEventListener('click', function () {
       if (!Object.keys(homework).length) {
-        alert('Домашних заданий пока не записано.');
+        alert('Личных заметок пока нет.');
         return;
       }
-      if (!confirm('Стереть все записанные домашние задания?')) return;
+      if (!confirm('Стереть все личные заметки к урокам? Задания учителя останутся.')) return;
       homework = {};
       saveHomework();
       renderDay();
@@ -812,7 +812,7 @@
       if (e.key === 'Escape' && !dom.sheetWrap.hidden) { closeSheet(); return; }
       if (!dom.sheetWrap.hidden) return;
       var tag = (e.target.tagName || '').toLowerCase();
-      if (tag === 'input' || tag === 'textarea') return;
+      if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
       if (e.key === 'ArrowRight') { shiftDay(1); e.preventDefault(); }
       if (e.key === 'ArrowLeft')  { shiftDay(-1); e.preventDefault(); }
     });

@@ -7,15 +7,19 @@
       старая версия из кэша.
    ========================================================================== */
 
-const CACHE_VERSION = 'v2';
+const CACHE_VERSION = 'v3';
 const CACHE = 'sch3a-' + CACHE_VERSION;
 
 const SHELL = [
   './',
   './index.html',
-  './styles.css?v=2',
-  './data.js?v=2',
-  './app.js?v=2',
+  './styles.css?v=3',
+  './data.js?v=3',
+  './app.js?v=3',
+  './homework.css?v=3',
+  './homework-config.js?v=3',
+  './homework-api.js?v=3',
+  './homework.js?v=3',
   './manifest.json',
   './fonts/nunito-cyrillic.woff2',
   './fonts/nunito-latin.woff2',
@@ -74,6 +78,8 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(request.url);
   if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
+  // Авторизация и общие задания идут напрямую на сервер, без кэша service worker.
+  if (url.origin !== self.location.origin) return;
 
   // Страница — сначала сеть: правку расписания видно сразу же.
   if (request.mode === 'navigate' ||

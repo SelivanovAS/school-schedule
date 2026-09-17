@@ -1,0 +1,33 @@
+.homework-board { margin: 18px 0; padding: 20px; background: var(--surface); border: 1px solid var(--line); border-radius: 24px; box-shadow: var(--shadow); }
+.homework-heading { display: flex; align-items: start; justify-content: space-between; gap: 12px; }
+.homework-board h2 { font-size: 21px; margin: 0; }
+.homework-board h3 { font-size: 17px; margin: 0; }
+.homework-hint { font-size: 14px; color: var(--muted); margin: 8px 0; line-height: 1.5; }
+.homework-heading .link-btn { flex-shrink: 0; }
+.teacher-access { margin: 16px 0; padding: 12px 14px; border: 1px solid var(--line); border-radius: 16px; }
+.teacher-access summary { padding: 8px 0; font-weight: 800; cursor: pointer; }
+.homework-form { display: grid; gap: 10px; }
+.homework-form label { font-size: 14px; font-weight: 800; }
+.homework-form input, .homework-form select, .homework-form textarea { width: 100%; min-width: 0; padding: 12px; font: inherit; font-size: 16px; color: var(--text); background: var(--surface-2); border: 2px solid var(--line); border-radius: 12px; }
+.homework-form textarea { resize: vertical; }
+.homework-form :focus-visible, .homework-board summary:focus-visible, .homework-board button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.assignment-editor { padding: 16px; margin: 16px 0; background: var(--surface-2); border-radius: 16px; }
+.primary-btn { padding: 12px 18px; border: 0; border-radius: 12px; background: #5b48c9; color: #fff; font: inherit; font-weight: 800; cursor: pointer; min-height: 44px; }
+.homework-actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.homework-filter { display: flex; gap: 10px; align-items: center; min-height: 44px; font-size: 14px; color: var(--muted); }
+.homework-filter input, .assignment-done input { width: 20px; height: 20px; accent-color: var(--accent); flex-shrink: 0; }
+.assignment { border-top: 1px solid var(--line); padding: 18px 0; }
+.assignment-meta { color: var(--muted); font-size: 14px; margin: 6px 0; }
+.assignment-body { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 16px; line-height: 1.6; margin: 12px 0; }
+.assignment-done { display: inline-flex; gap: 10px; align-items: center; min-height: 44px; font-weight: 700; cursor: pointer; }
+.assignment.is-done h3::after { content: ' ✓'; color: var(--ok); }
+.homework-board button:disabled { opacity: .55; cursor: wait; }
+.homework-board [hidden] { display: none !important; }
+@media (max-width: 380px) {
+  .homework-board { padding: 14px; }
+  .homework-heading { flex-wrap: wrap; }
+}
+@media (min-width: 950px) {
+  .shell { grid-template-areas: "top top" "now now" "homework homework" "days day" "days foot"; }
+  .homework-board { grid-area: homework; }
+}

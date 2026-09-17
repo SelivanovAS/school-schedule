@@ -18,7 +18,8 @@
   <link rel="icon" href="./icon-192.png" type="image/png">
 
   <link rel="preload" href="./fonts/nunito-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="./styles.css?v=2">
+  <link rel="stylesheet" href="./styles.css?v=3">
+  <link rel="stylesheet" href="./homework.css?v=3">
 
   <script>
     /* Тема применяется до первой отрисовки — иначе на тёмном телефоне
@@ -60,6 +61,54 @@
     <!-- заполняется в app.js -->
   </section>
 
+  <section class="homework-board" aria-labelledby="homework-title">
+    <div class="homework-heading">
+      <div>
+        <h2 id="homework-title">🎒 Задания домой</h2>
+        <p class="homework-hint">От учителя — для выполнения вне школы</p>
+      </div>
+      <button class="link-btn" id="assignments-refresh" type="button">Обновить</button>
+    </div>
+    <p id="assignments-status" class="homework-hint" role="status">Загружаем задания…</p>
+    <p id="assignment-notice" class="homework-hint" role="status"></p>
+
+    <details id="teacher-access" class="teacher-access">
+      <summary>Вход для учителя</summary>
+      <form id="teacher-login" class="homework-form">
+        <p class="homework-hint">Вход доступен только назначенному учителю класса.</p>
+        <label for="teacher-email">Электронная почта</label>
+        <input id="teacher-email" name="email" type="email" autocomplete="username" required>
+        <label for="teacher-password">Пароль</label>
+        <input id="teacher-password" name="password" type="password" autocomplete="current-password" required>
+        <button class="primary-btn" type="submit">Войти</button>
+      </form>
+      <p id="teacher-status" class="homework-hint" role="status"></p>
+      <button class="ghost-btn" id="teacher-logout" type="button" hidden>Выйти из режима учителя</button>
+    </details>
+
+    <form id="assignment-editor" class="homework-form assignment-editor" hidden>
+      <h3 id="assignment-editor-title">Новое задание для всех учеников</h3>
+      <label for="assignment-subject">Предмет</label>
+      <select id="assignment-subject" required></select>
+      <label for="assignment-due">Сдать к</label>
+      <input id="assignment-due" type="date" min="2020-01-01" max="2100-12-31" required>
+      <label for="assignment-body">Что сделать дома</label>
+      <textarea id="assignment-body" rows="4" maxlength="6000" required
+                placeholder="Например: математика, стр. 25, № 3 и 4. Решить в тетради."></textarea>
+      <p class="homework-hint">После публикации задание увидят все ученики.</p>
+      <div class="homework-actions">
+        <button class="primary-btn" id="assignment-save" type="submit">Опубликовать для всех</button>
+        <button class="link-btn" id="assignment-cancel" type="button" hidden>Отменить редактирование</button>
+      </div>
+      <p id="assignment-save-status" class="homework-hint" role="status"></p>
+    </form>
+
+    <label class="homework-filter"><input id="assignments-history" type="checkbox"> Показать прошедшие сроки</label>
+    <div id="assignment-list"></div>
+    <button class="ghost-btn" id="assignments-more" type="button" hidden>Загрузить более ранние задания</button>
+    <p class="homework-hint">Отметка «Сделано» сохраняется только у вас на этом устройстве.</p>
+  </section>
+
   <nav class="days" id="days" aria-label="Дни недели">
     <!-- заполняется в app.js -->
   </nav>
@@ -70,8 +119,8 @@
 
   <footer class="foot">
     <button class="link-btn" id="print-btn" type="button">🖨️ Распечатать неделю</button>
-    <button class="link-btn" id="clear-hw-btn" type="button">🧹 Очистить все домашки</button>
-    <p class="foot-note">Домашние задания хранятся только на этом устройстве.</p>
+    <button class="link-btn" id="clear-hw-btn" type="button">🧹 Очистить личные заметки</button>
+    <p class="foot-note">В карточках уроков — ваши личные заметки. Задания учителя находятся в разделе «Задания домой».</p>
   </footer>
 
 </div>
@@ -89,7 +138,7 @@
       </div>
       <button class="icon-btn" id="sheet-close" type="button" aria-label="Закрыть">✕</button>
     </div>
-    <label class="sheet-label" for="hw-text">Что задано на дом?</label>
+    <label class="sheet-label" for="hw-text">Моя заметка к уроку (видна только мне)</label>
     <textarea id="hw-text" class="hw-text" rows="4"
               placeholder="Например: упражнение 145, выучить правило"></textarea>
     <div class="sheet-row">
@@ -100,14 +149,17 @@
       </label>
       <span class="saved-note" id="saved-note" aria-live="polite"></span>
     </div>
-    <button class="ghost-btn" id="hw-clear" type="button">Очистить это задание</button>
+    <button class="ghost-btn" id="hw-clear" type="button">Очистить личную заметку</button>
   </div>
 </div>
 
 <!-- Печатная версия всей недели: видна только при печати -->
 <div class="print-only" id="print-view" aria-hidden="true"></div>
 
-<script src="./data.js?v=2"></script>
-<script src="./app.js?v=2"></script>
+<script src="./data.js?v=3"></script>
+<script src="./app.js?v=3"></script>
+<script src="./homework-config.js?v=3"></script>
+<script src="./homework-api.js?v=3"></script>
+<script src="./homework.js?v=3"></script>
 </body>
 </html>

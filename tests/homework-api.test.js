@@ -1,6 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { createClient } = require('../homework-api.js');
+globalThis.crypto = require('node:crypto').webcrypto;
 const config = { url: 'https://example.supabase.co', publishableKey: 'sb_publishable_example' };
 const item = { id: '11111111-1111-4111-8111-111111111111', version: 1 };
 const input = { subject: 'Математика', body: 'Страница 5, № 3', due_date: '2026-09-18' };
@@ -70,4 +71,27 @@ test('logout clears teacher access even if the network fails', async () => {
 test('secret API keys are never accepted as public configuration', () => {
   const client = createClient({ ...config, publishableKey: 'sb_secret_example' }, () => {});
   assert.equal(client.configured, false);
+});
+
+test('photo paths are confined to the class bucket and validated before saving', async () => {
+  const { client, calls } = fixture(auth()); await client.login('teacher@example.com', 'password');
+  const photo = item.id + '.jpg';
+  assert.match(client.photoUrl(photo), /storage\/v1\/object\/public\/homework-photos/);
+  for (const path of ['https://evil.example/a.jpg', '../secret.jpg', 'javascript:alert(1)', 'x.svg']) assert.equal(client.photoUrl(path), null);
+  await assert.rejects(client.save({ ...input, photo_paths: [photo, photo] }), /фотографий/);
+  await assert.rejects(client.save({ ...input, photo_paths: ['x.svg'] }), /фотографий/);
+  assert.equal(calls.length, 2);
+});
+test('uploads use teacher token, binary JPEG and unique non-overwriting object names', async () => {
+  const { client, calls } = fixture([...auth(), { data: { Key: 'ok' } }, { data: [] }]);
+  const blob = new Blob(['jpeg'], { type: 'image/jpeg' });
+  await assert.rejects(client.uploadPhoto(blob), /Войдите/);
+  await client.login('teacher@example.com', 'password');
+  await assert.rejects(client.uploadPhoto(new Blob(['svg'], { type: 'image/svg+xml' })), /JPEG/);
+  const path = await client.uploadPhoto(blob);
+  assert.match(path, /^[a-f0-9-]{36}\.jpg$/);
+  assert.equal(calls[2].body, blob); assert.equal(calls[2].headers['Content-Type'], 'image/jpeg');
+  assert.equal(calls[2].headers.Authorization, 'Bearer teacher-token'); assert.equal(calls[2].headers['x-upsert'], 'false');
+  await client.removePhotos([path]);
+  assert.deepEqual(JSON.parse(calls[3].body), { prefixes: [path] });
 });

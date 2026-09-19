@@ -1,33 +1,79 @@
-.homework-board { margin: 18px 0; padding: 20px; background: var(--surface); border: 1px solid var(--line); border-radius: 24px; box-shadow: var(--shadow); }
+[hidden] { display: none !important; }
+.shell { display: block; max-width: 1040px; }
+.now-card { padding: 13px 18px; border-radius: 20px; }
+.now-kicker { margin-bottom: 5px; }
+.now-icon { width: 38px; height: 38px; font-size: 22px; border-radius: 12px; }
+.now-title { font-size: 19px; }
+.now-next { margin-top: 8px; }
+.now-bar { margin-top: 9px; height: 5px; }
+.teacher-entry { min-height: 44px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 14px; color: var(--text); background: var(--surface); font: inherit; font-size: 14px; font-weight: 800; cursor: pointer; }
+.view-tabs { display: flex; gap: 5px; padding: 5px; margin: 18px 0 8px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 16px; }
+.view-tabs button { flex: 1; min-height: 46px; border: 0; border-radius: 12px; padding: 10px 8px; background: transparent; font: inherit; font-weight: 800; color: var(--muted); cursor: pointer; }
+.view-tabs [aria-selected="true"] { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
+.tab-count { display: inline-flex; align-items: center; justify-content: center; min-width: 23px; height: 23px; padding: 0 6px; margin-left: 4px; border-radius: 20px; background: #5b48c9; color: white; font-size: 12px; }
+.homework-board { margin: 16px 0; padding: 20px; background: var(--surface); border: 1px solid var(--line); border-radius: 24px; box-shadow: var(--shadow); }
 .homework-heading { display: flex; align-items: start; justify-content: space-between; gap: 12px; }
 .homework-board h2 { font-size: 21px; margin: 0; }
 .homework-board h3 { font-size: 17px; margin: 0; }
 .homework-hint { font-size: 14px; color: var(--muted); margin: 8px 0; line-height: 1.5; }
 .homework-heading .link-btn { flex-shrink: 0; }
-.teacher-access { margin: 16px 0; padding: 12px 14px; border: 1px solid var(--line); border-radius: 16px; }
-.teacher-access summary { padding: 8px 0; font-weight: 800; cursor: pointer; }
+.app-dialog { width: min(520px, calc(100% - 24px)); max-height: calc(100dvh - 32px); margin: auto; padding: 22px; border: 1px solid var(--line); border-radius: 24px; background: var(--surface); color: var(--text); box-shadow: var(--shadow-lg); }
+.app-dialog::backdrop { background: rgba(20, 15, 35, .55); backdrop-filter: blur(4px); }
+.dialog-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.dialog-heading h2 { margin: 0; font-size: 20px; overflow-wrap: anywhere; }
+body:has(dialog[open]) { overflow: hidden; }
 .homework-form { display: grid; gap: 10px; }
 .homework-form label { font-size: 14px; font-weight: 800; }
 .homework-form input, .homework-form select, .homework-form textarea { width: 100%; min-width: 0; padding: 12px; font: inherit; font-size: 16px; color: var(--text); background: var(--surface-2); border: 2px solid var(--line); border-radius: 12px; }
 .homework-form textarea { resize: vertical; }
-.homework-form :focus-visible, .homework-board summary:focus-visible, .homework-board button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.homework-form :focus-visible, summary:focus-visible, button:focus-visible, .app-dialog a:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
 .assignment-editor { padding: 16px; margin: 16px 0; background: var(--surface-2); border-radius: 16px; }
 .primary-btn { padding: 12px 18px; border: 0; border-radius: 12px; background: #5b48c9; color: #fff; font: inherit; font-weight: 800; cursor: pointer; min-height: 44px; }
 .homework-actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
-.homework-filter { display: flex; gap: 10px; align-items: center; min-height: 44px; font-size: 14px; color: var(--muted); }
-.homework-filter input, .assignment-done input { width: 20px; height: 20px; accent-color: var(--accent); flex-shrink: 0; }
-.assignment { border-top: 1px solid var(--line); padding: 18px 0; }
+.assignment-done input { width: 22px; height: 22px; accent-color: var(--accent); flex-shrink: 0; }
+.assignment { border: 1px solid var(--line); border-left: 4px solid var(--sc); border-radius: 16px; padding: 16px; margin: 12px 0; }
+.assignment-heading { display: flex; align-items: center; gap: 10px; }
+.assignment h4 { font-size: 17px; margin: 0; }
+.assignment-icon { display: grid; place-items: center; width: 36px; height: 36px; flex-shrink: 0; border-radius: 10px; background: var(--sb); font-size: 22px; }
+.homework-board .deadline-title { font-size: 15px; font-weight: 800; margin: 22px 0 8px; }
+.deadline-title.is-soon { color: #974008; }
+:root[data-resolved="dark"] .deadline-title.is-soon { color: #ffbd7c; }
+.assignment-archive { margin-top: 18px; border-top: 1px solid var(--line); }
+.assignment-archive summary { min-height: 48px; padding: 14px 0; font-weight: 800; cursor: pointer; }
+.homework-empty { padding: 24px 0; line-height: 1.6; }
 .assignment-meta { color: var(--muted); font-size: 14px; margin: 6px 0; }
 .assignment-body { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 16px; line-height: 1.6; margin: 12px 0; }
 .assignment-done { display: inline-flex; gap: 10px; align-items: center; min-height: 44px; font-weight: 700; cursor: pointer; }
-.assignment.is-done h3::after { content: ' ✓'; color: var(--ok); }
+.assignment.is-done h4::after { content: ' ✓'; color: var(--ok); }
+.homework-hint:empty { display: none; }
+#assignments-status { font-size: 12px; }
+#assignments-status.is-warning { padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; font-size: 14px; color: var(--text); background: var(--surface-2); }
+#assignment-new { margin: 12px 0 0; }
+.homework-actions .link-btn, .photo-preview .link-btn { min-height: 44px; }
+.photo-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 12px 0; }
+.photo-thumb { display: block; width: 100%; padding: 0; min-height: 96px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2); overflow: hidden; cursor: zoom-in; }
+.photo-thumb img { display: block; width: 100%; height: 160px; object-fit: contain; }
+.photo-thumb span { display: block; padding: 12px; }
+.photo-viewer { width: min(1100px, calc(100% - 24px)); }
+.photo-viewer .homework-actions { margin-bottom: 10px; }
+.photo-canvas { max-height: 68dvh; overflow: auto; background: var(--surface-2); border-radius: 12px; }
+.photo-canvas img { display: block; width: auto; max-width: 100%; max-height: 68dvh; margin: auto; object-fit: contain; }
+.photo-canvas.is-zoomed img { max-width: none; max-height: none; margin: 0; }
 .homework-board button:disabled { opacity: .55; cursor: wait; }
 .homework-board [hidden] { display: none !important; }
 @media (max-width: 380px) {
+  .shell { padding-left: 10px; padding-right: 10px; }
+  .top { gap: 6px; }
+  .class-name { font-size: 20px; }
+  .teacher-entry { padding: 8px; font-size: 13px; }
+  .view-tabs button { font-size: 14px; }
   .homework-board { padding: 14px; }
   .homework-heading { flex-wrap: wrap; }
 }
 @media (min-width: 950px) {
-  .shell { grid-template-areas: "top top" "now now" "homework homework" "days day" "days foot"; }
-  .homework-board { grid-area: homework; }
+  .schedule-panel { display: grid; grid-template-columns: 190px minmax(0, 1fr); grid-template-areas: "days day" "days foot"; gap: 0 28px; }
+  .schedule-panel .days, .schedule-panel .day { margin-top: 14px; }
+  .homework-board { max-width: 760px; margin-left: auto; margin-right: auto; }
 }
+@media (max-width: 949px) { .shell { max-width: 680px; } }
+@media print { .app-dialog { display: none !important; } }

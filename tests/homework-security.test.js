@@ -18,29 +18,50 @@ test('database enforces a single teacher and blocks student/anonymous writes', a
       grant usage on schema public, auth to anon, authenticated;
       grant execute on function auth.uid() to anon, authenticated;
       insert into auth.users values ('${teacher}'), ('${stranger}');
+      create schema storage;
+      create table storage.buckets(id text primary key, name text, public boolean, file_size_limit bigint, allowed_mime_types text[]);
+      create table storage.objects(id uuid primary key default gen_random_uuid(), bucket_id text references storage.buckets, name text, unique(bucket_id,name));
+      alter table storage.objects enable row level security;
+      grant usage on schema storage to anon, authenticated;
+      grant select, insert, update, delete on storage.objects to anon, authenticated;
     `);
     await db.exec(fs.readFileSync(path.join(__dirname, '../supabase/migrations/202609160001_teacher_homework.sql'), 'utf8'));
+    await db.exec(fs.readFileSync(path.join(__dirname, '../supabase/migrations/202609190001_homework_photos.sql'), 'utf8'));
     await db.query('insert into school_private.teacher(user_id) values ($1)', [teacher]);
     await assert.rejects(db.query('insert into school_private.teacher(user_id) values ($1)', [stranger]), /duplicate key/);
     await assert.rejects(db.query('insert into school_private.teacher(slot,user_id) values (2,$1)', [stranger]), /check constraint/);
     const insert = "insert into public.assignments(subject,body,due_date) values ('Математика','№ 5','2026-09-18') returning *";
+    const photo = teacher + '.jpg';
+    const upload = "insert into storage.objects(bucket_id,name) values ('homework-photos',$1) returning *";
 
     await db.exec('set role anon');
     assert.equal((await db.query('select * from public.assignments')).rows.length, 0);
     await assert.rejects(db.query(insert), /permission denied/);
     await assert.rejects(db.query('select * from school_private.teacher'), /permission denied/);
+    await assert.rejects(db.query(upload, [photo]), /row-level security/);
 
     await db.exec('reset role; set role authenticated');
     await db.query("select set_config('request.jwt.claim.sub', $1, false)", [stranger]);
     assert.equal((await db.query('select public.is_class_teacher() as allowed')).rows[0].allowed, false);
     await assert.rejects(db.query(insert), /row-level security/);
+    await assert.rejects(db.query(upload, [photo]), /row-level security/);
     await assert.rejects(db.query("insert into school_private.teacher(user_id) values ($1)", [stranger]), /permission denied/);
 
     await db.query("select set_config('request.jwt.claim.sub', $1, false)", [teacher]);
     assert.equal((await db.query('select public.is_class_teacher() as allowed')).rows[0].allowed, true);
     const item = (await db.query(insert)).rows[0];
+    assert.deepEqual(item.photo_paths, []);
+    await db.query(upload, [photo]);
+    await assert.rejects(db.query(upload, ['../anything.svg']), /row-level security/);
+    assert.equal((await db.query("update storage.objects set name='overwrite.jpg' returning *")).rows.length, 0);
     const updated = (await db.query("update public.assignments set body='№ 6' where id=$1 and version=1 returning *", [item.id])).rows[0];
     assert.equal(updated.version, 2);
+    await assert.rejects(db.query('update public.assignments set photo_paths=$1', [[photo, photo]]), /check constraint/);
+    await assert.rejects(db.query('update public.assignments set photo_paths=$1', [['https://evil.example/x.jpg']]), /check constraint/);
+    await assert.rejects(db.query('update public.assignments set photo_paths=$1', [[null]]), /check constraint/);
+    await assert.rejects(db.query('update public.assignments set photo_paths=$1', [[1,2,3,4,5].map(n => `00000000-0000-4000-8000-00000000000${n}.jpg`)]), /check constraint/);
+    await db.query('update public.assignments set photo_paths=$1', [[photo]]);
+    assert.equal((await db.query('delete from storage.objects returning *')).rows.length, 0, 'referenced photos cannot be deleted');
     assert.equal((await db.query("update public.assignments set body='stale' where id=$1 and version=1 returning *", [item.id])).rows.length, 0);
     await assert.rejects(db.query('update public.assignments set version=1'), /permission denied/);
     await assert.rejects(db.query("update public.assignments set body=' '"), /check constraint/);
@@ -49,6 +70,7 @@ test('database enforces a single teacher and blocks student/anonymous writes', a
     assert.equal((await db.query('select * from public.assignments')).rows.length, 1);
     assert.equal((await db.query("update public.assignments set body='hack' returning *")).rows.length, 0);
     assert.equal((await db.query('delete from public.assignments returning *')).rows.length, 0);
+    assert.equal((await db.query('delete from storage.objects returning *')).rows.length, 0);
     await db.exec('reset role; set role anon');
     assert.equal((await db.query('select body from public.assignments')).rows[0].body, '№ 6');
     await assert.rejects(db.query("update public.assignments set body='hack'"), /permission denied/);
@@ -63,5 +85,6 @@ test('database enforces a single teacher and blocks student/anonymous writes', a
     await assert.rejects(db.query(insert), /row-level security/);
     await db.query("select set_config('request.jwt.claim.sub', $1, false)", [stranger]);
     assert.equal((await db.query('delete from public.assignments returning *')).rows.length, 1);
+    assert.equal((await db.query('delete from storage.objects returning *')).rows.length, 1, 'teacher can clean unreferenced photos');
   } finally { await db.close(); }
 });

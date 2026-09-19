@@ -9,20 +9,22 @@
     var configured = /^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(url) &&
       /^sb_publishable_[A-Za-z0-9_-]+$/.test(key);
     var session = null; // Только в памяти вкладки, без пароля и постоянного хранилища.
+    var photoPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.jpg$/;
     fetcher = fetcher || root.fetch.bind(root);
 
     async function request(path, options, token) {
       if (!configured) throw new Error('Общие задания ещё не подключены.');
       options = options || {};
       var controller = new AbortController();
-      var timeout = setTimeout(function () { controller.abort(); }, 15000);
-      var headers = { apikey: key, 'Content-Type': 'application/json' };
+      var timeout = setTimeout(function () { controller.abort(); }, options.raw ? 60000 : 15000);
+      var headers = { apikey: key, 'Content-Type': options.raw ? 'image/jpeg' : 'application/json' };
+      if (options.raw) headers['x-upsert'] = 'false';
       if (token) headers.Authorization = 'Bearer ' + token;
       if (options.method && options.method !== 'GET') headers.Prefer = 'return=representation';
       try {
         var response = await fetcher(url + path, {
           method: options.method || 'GET', headers: headers,
-          body: options.body === undefined ? undefined : JSON.stringify(options.body),
+          body: options.raw ? options.body : options.body === undefined ? undefined : JSON.stringify(options.body),
           cache: 'no-store', credentials: 'omit', signal: controller.signal,
         });
         if (!response.ok) {
@@ -64,7 +66,16 @@
           date.toISOString().slice(0, 10) !== due || due < '2020-01-01' || due > '2100-12-31') {
         throw new Error('Укажите корректную дату сдачи.');
       }
-      return { subject: subject, body: body, due_date: due };
+      var payload = { subject: subject, body: body, due_date: due };
+      if (input.photo_paths !== undefined) {
+        if (!Array.isArray(input.photo_paths) || input.photo_paths.length > 4 ||
+            new Set(input.photo_paths).size !== input.photo_paths.length ||
+            !input.photo_paths.every(function (p) { return typeof p === 'string' && photoPattern.test(p); })) {
+          throw new Error('Можно прикрепить до 4 фотографий из хранилища класса.');
+        }
+        payload.photo_paths = input.photo_paths.slice();
+      }
+      return payload;
     }
 
     function selector(item) {
@@ -79,8 +90,28 @@
       storageScope: url,
       isTeacher: function () { return !!session && session.expiresAt > Date.now(); },
       list: function (offset) {
-        return request('/rest/v1/assignments?select=id,subject,body,due_date,version,updated_at' +
+        return request('/rest/v1/assignments?select=id,subject,body,due_date,version,updated_at,photo_paths' +
           '&order=due_date.desc,id.desc&limit=100&offset=' + (offset || 0));
+      },
+      photoUrl: function (path) {
+        return configured && typeof path === 'string' && photoPattern.test(path)
+          ? url + '/storage/v1/object/public/homework-photos/' + path : null;
+      },
+      uploadPhoto: async function (blob) {
+        var token = teacherToken();
+        if (!blob || blob.type !== 'image/jpeg' || !blob.size || blob.size > 5 * 1024 * 1024) {
+          throw new Error('Фотография должна быть JPEG размером до 5 МБ.');
+        }
+        var path = root.crypto.randomUUID() + '.jpg';
+        await request('/storage/v1/object/homework-photos/' + path,
+          { method: 'POST', body: blob, raw: true }, token);
+        return path;
+      },
+      removePhotos: async function (paths) {
+        if (!paths.length) return;
+        if (!paths.every(function (p) { return typeof p === 'string' && photoPattern.test(p); })) throw new Error('Некорректное имя фотографии.');
+        await request('/storage/v1/object/homework-photos',
+          { method: 'DELETE', body: { prefixes: paths } }, teacherToken());
       },
       login: async function (email, password) {
         session = null;

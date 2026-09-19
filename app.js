@@ -222,7 +222,7 @@
       var nx = nextKnownDay(stamp.date.getDay());
       return {
         color: 'accent', kicker: 'Выходной', icon: '🎉',
-        title: 'Сегодня можно отдыхать',
+        title: 'Сегодня нет уроков',
         left: '',
         next: nx ? whenFirstText(nx) : '',
       };
@@ -809,6 +809,7 @@
     });
 
     document.addEventListener('keydown', function (e) {
+      if (e.defaultPrevented || document.querySelector('dialog[open]') || document.getElementById('schedule-panel').hidden) return;
       if (e.key === 'Escape' && !dom.sheetWrap.hidden) { closeSheet(); return; }
       if (!dom.sheetWrap.hidden) return;
       var tag = (e.target.tagName || '').toLowerCase();

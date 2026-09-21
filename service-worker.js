@@ -7,20 +7,20 @@
       старая версия из кэша.
    ========================================================================== */
 
-const CACHE_VERSION = 'v4';
+const CACHE_VERSION = 'v5';
 const CACHE = 'sch3a-' + CACHE_VERSION;
 
 const SHELL = [
   './',
   './index.html',
-  './styles.css?v=4',
-  './data.js?v=4',
-  './app.js?v=4',
-  './homework.css?v=4',
-  './homework-config.js?v=4',
-  './homework-api.js?v=4',
-  './homework-photos.js?v=4',
-  './homework.js?v=4',
+  './styles.css?v=5',
+  './data.js?v=5',
+  './app.js?v=5',
+  './homework.css?v=5',
+  './homework-config.js?v=5',
+  './homework-api.js?v=5',
+  './homework-photos.js?v=5',
+  './homework.js?v=5',
   './manifest.json',
   './fonts/nunito-cyrillic.woff2',
   './fonts/nunito-latin.woff2',

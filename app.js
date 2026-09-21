@@ -111,6 +111,7 @@
         item.icon = b.icon;
         item.title = b.title;
         item.color = b.color || null;
+        item.needsDate = !!b.needsDate;
       } else if (e.title) {
         lessonNo += 1;
         var s = SUBJECTS[e.title] || {};
@@ -206,7 +207,7 @@
 
   function nextLine(item) {
     return item
-      ? 'Дальше: ' + item.icon + ' ' + item.title + ' в ' + item.fromText
+      ? (item.needsDate ? 'Возможно дальше: ' : 'Дальше: ') + item.icon + ' ' + item.title + ' в ' + item.fromText
       : 'Это последнее на сегодня';
   }
 
@@ -276,6 +277,16 @@
       var left = it.to - stamp.mins;
       var progress = Math.max(0, Math.min(100, ((stamp.mins - it.from) / (it.to - it.from)) * 100));
       var soon = nextAnythingAfter(items, i);
+
+      // Для занятия раз в две недели без известной даты нельзя обещать,
+      // что оно проходит именно сегодня, или включать таймер «сейчас идёт».
+      if (it.needsDate) {
+        return {
+          color: it.color, kicker: 'Возможное занятие', icon: it.icon,
+          title: it.title, left: 'Даты уточняются — узнайте в школе',
+          next: nextLine(soon),
+        };
+      }
 
       if (isLessonItem(it)) {
         // На уроке интересен следующий УРОК, а не перемена между ними.
@@ -514,6 +525,7 @@
         ? it.no + '-й урок · до ' + it.toText
         : 'до ' + it.toText + ' · ' + shortDur(it.to - it.from);
       txt.appendChild(el('p', null, sub));
+      if (it.needsDate) txt.appendChild(el('p', null, 'Даты уточняются'));
       card.appendChild(txt);
 
       // Длительность урока пилюлей справа — только на планшете и шире:
@@ -557,7 +569,7 @@
 
     state.rows.forEach(function (r) {
       var it = r.item;
-      var isNow = showLive && stamp.mins >= it.from && stamp.mins < it.to;
+      var isNow = showLive && !it.needsDate && stamp.mins >= it.from && stamp.mins < it.to;
       var isPast = showLive && stamp.mins >= it.to;
 
       r.node.classList.toggle('is-now', isNow);
@@ -700,7 +712,7 @@
         items.forEach(function (it) {
           var row = el('div', 'p-row' + (it.kind === 'lesson' ? '' : ' p-quiet'));
           row.appendChild(el('span', 'p-t', it.fromText + '–' + it.toText));
-          row.appendChild(el('span', null, it.title));
+          row.appendChild(el('span', null, it.title + (it.needsDate ? ' — даты уточняются' : '')));
           col.appendChild(row);
         });
       }

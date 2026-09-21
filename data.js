@@ -28,6 +28,8 @@
       уже поставил приложение на телефон, останется старое расписание.
    ========================================================================== */
 
+// По фотографии от 21.09.2026. В четверг и пятницу на листе указано
+// 13:40 для ДЗ при обеде до 13:50: пользователь подтвердил начало ДЗ в 13:50.
 const SCHEDULE = {
 
   // ------------------------------------------------------------ понедельник
@@ -45,23 +47,30 @@ const SCHEDULE = {
     { from: '12:20', to: '13:00', title: 'Физ-ра' },
     { from: '13:30', to: '13:50', type: 'lunch' },
     { from: '13:50', to: '15:00', type: 'homework' },
+    { from: '15:00', to: '15:10', type: 'afternoonSnack' },
+    { from: '15:10', to: '15:50', type: 'cooking' },
+    { from: '16:00', to: '16:50', type: 'choreography' },
   ],
 
   // ----------------------------------------------------------------- вторник
   tue: [
     { from: '08:00', to: '08:45', type: 'breakfast' },
     { from: '08:45', to: '09:00', type: 'circle' },
-    { from: '09:00', to: '09:40', title: 'Окружающий мир' },
+    { from: '09:00', to: '09:40', title: 'Личностный рост с психологом' },
     { from: '09:40', to: '09:50', type: 'break' },
     { from: '09:50', to: '10:30', title: 'Английский язык' },
     { from: '10:30', to: '10:40', type: 'break' },
-    { from: '10:40', to: '11:20', title: 'ИЗО' },
+    { from: '10:40', to: '11:20', title: 'Технология' },
     { from: '11:20', to: '11:30', type: 'snack' },
     { from: '11:30', to: '12:10', title: 'Русский язык' },
     { from: '12:10', to: '12:20', type: 'break' },
-    { from: '12:20', to: '13:00', title: 'Литературное чтение' },
+    { from: '12:20', to: '13:00', title: 'Окружающий мир' },
     { from: '13:30', to: '13:50', type: 'lunch' },
     { from: '13:50', to: '15:00', type: 'homework' },
+    { from: '15:00', to: '15:10', type: 'afternoonSnack' },
+    { from: '15:10', to: '16:00', type: 'creativeActivity' },
+    { from: '16:00', to: '16:50', type: 'chinese' },
+    { from: '17:00', to: '17:20', type: 'dinner' },
   ],
 
   // ------------------------------------------------------------------- среда
@@ -70,15 +79,19 @@ const SCHEDULE = {
     { from: '08:45', to: '09:00', type: 'circle' },
     { from: '09:00', to: '09:40', title: 'Русский язык' },
     { from: '09:40', to: '09:50', type: 'break' },
-    { from: '09:50', to: '10:30', title: 'Математика' },
+    { from: '09:50', to: '10:30', title: 'ИЗО' },
     { from: '10:30', to: '10:40', type: 'break' },
-    { from: '10:40', to: '11:20', title: 'ИЗО' },
+    { from: '10:40', to: '11:20', title: 'Литературное чтение' },
     { from: '11:20', to: '11:30', type: 'snack' },
-    { from: '11:30', to: '12:10', title: 'Окружающий мир' },
-    { from: '12:10', to: '12:50', type: 'walk' },
-    { from: '12:50', to: '13:20', title: 'Креативное мышление' },
+    { from: '11:30', to: '12:10', title: 'Математика' },
+    { from: '12:10', to: '12:20', type: 'break' },
+    { from: '12:20', to: '13:00', title: 'Креативное мышление' },
     { from: '13:30', to: '13:50', type: 'lunch' },
     { from: '13:50', to: '15:00', type: 'homework' },
+    { from: '15:00', to: '15:10', type: 'afternoonSnack' },
+    { from: '15:10', to: '16:00', type: 'games' },
+    { from: '16:00', to: '17:00', type: 'engineeringClub' },
+    { from: '17:00', to: '17:20', type: 'dinner' },
   ],
 
   // ---------------------------------------------------------------- четверг
@@ -96,6 +109,10 @@ const SCHEDULE = {
     { from: '12:20', to: '13:00', title: 'Русский язык' },
     { from: '13:30', to: '13:50', type: 'lunch' },
     { from: '13:50', to: '15:00', type: 'homework' },
+    { from: '15:00', to: '15:10', type: 'afternoonSnack' },
+    { from: '15:10', to: '15:50', type: 'psychologistGroup' },
+    { from: '16:00', to: '17:00', type: 'chinese' },
+    { from: '17:00', to: '17:20', type: 'dinner' },
   ],
 
   // ---------------------------------------------------------------- пятница
@@ -110,9 +127,13 @@ const SCHEDULE = {
     { from: '11:20', to: '11:30', type: 'snack' },
     { from: '11:30', to: '12:10', title: 'Физ-ра' },
     { from: '12:10', to: '12:20', type: 'break' },
-    { from: '12:20', to: '13:00', title: 'Технология' },
+    { from: '12:20', to: '13:00', title: 'Окружающий мир' },
     { from: '13:30', to: '13:50', type: 'lunch' },
     { from: '13:50', to: '15:00', type: 'homework' },
+    { from: '15:00', to: '15:10', type: 'afternoonSnack' },
+    { from: '15:10', to: '15:50', type: 'engineeringClub' },
+    { from: '16:10', to: '16:50', type: 'choreography' },
+    { from: '17:00', to: '17:20', type: 'dinner' },
   ],
 };
 
@@ -139,6 +160,7 @@ const SUBJECTS = {
   'Инженерное проектирование':             { icon: '🛠️', color: 'amber', short: 'Инженерное проектирование' },
   'Креативное мышление':                   { icon: '💡', color: 'violet' },
   'Физ-ра':                                { icon: '⚽', color: 'orange' },
+  'Личностный рост с психологом':           { icon: '🌱', color: 'green' },
 
   // Про запас — если предмет появится в расписании, он сразу будет красивым.
   'ИЗО':                                   { icon: '🎨', color: 'pink' },
@@ -162,6 +184,15 @@ const BLOCKS = {
   gap:       { icon: '⏳', title: 'Перерыв',           slim: true },
   lunch:     { icon: '🍽️', title: 'Обед',              color: 'lime' },
   homework:  { icon: '📝', title: 'Закрепление материала / выполнение д/з', color: 'slate' },
+  afternoonSnack: { icon: '🍎', title: 'Полдник', color: 'lime' },
+  dinner: { icon: '🍽️', title: 'Ужин', color: 'lime' },
+  cooking: { icon: '👩‍🍳', title: 'Кулинария (1 раз в две недели)', color: 'amber', needsDate: true },
+  choreography: { icon: '💃', title: 'Хореография', color: 'violet' },
+  creativeActivity: { icon: '🎨', title: 'Творчество', color: 'teal' },
+  chinese: { icon: '🀄', title: 'Китайский язык', color: 'rose' },
+  games: { icon: '🎲', title: 'Игры по интересам', color: 'peach' },
+  engineeringClub: { icon: '🛠️', title: 'Инженерное проектирование', color: 'amber' },
+  psychologistGroup: { icon: '🤝', title: 'Групповое занятие с психологом', color: 'green' },
   unknown:   { icon: '❓', title: 'Уточняется',        color: 'unknown' },
 };
 

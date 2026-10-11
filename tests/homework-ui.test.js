@@ -32,6 +32,7 @@ async function setup(overrides = {}, storage = {}) {
   w.SCHEDULE = { mon: [{ title: 'Математика' }] };
   w.confirm = () => true;
   for (const [key, value] of Object.entries(storage)) w.localStorage.setItem(key, JSON.stringify(value));
+  w.eval(fs.readFileSync(path.join(__dirname, '../school-app.js'), 'utf8'));
   w.eval(script);
   await flush();
   const get = id => w.document.getElementById(id);

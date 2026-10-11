@@ -66,10 +66,10 @@ test('clubs do not inflate lesson count; unknown cooking week is not marked live
 test('all static assets and offline cache use the new release version', () => {
   const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
   const sw = fs.readFileSync(path.join(root, 'service-worker.js'), 'utf8');
-  assert.match(sw, /CACHE_VERSION = 'v5'/);
-  for (const [, asset] of html.matchAll(/(?:src|href)="\.\/([^"?]+)\?v=5"/g)) {
+  assert.match(sw, /CACHE_VERSION = 'v6'/);
+  for (const [, asset] of html.matchAll(/(?:src|href)="\.\/([^"?]+)\?v=6"/g)) {
     assert.ok(fs.existsSync(path.join(root, asset)), asset);
-    assert.ok(sw.includes(`./${asset}?v=5`), asset);
+    assert.ok(sw.includes(`./${asset}?v=6`), asset);
   }
-  assert.doesNotMatch(html + sw, /\?v=[1-4](?:'|")/);
+  assert.doesNotMatch(html + sw, /\?v=[1-5](?:'|")/);
 });

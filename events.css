@@ -1,0 +1,17 @@
+.view-tabs button { min-width: 0; overflow-wrap: normal; }
+.event-card { border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 16px; padding: 16px; margin: 12px 0; overflow-wrap: anywhere; }
+.event-card h4 { margin: 6px 0 10px; font-size: 19px; line-height: 1.35; }
+.event-kind { margin: 0; font-size: 13px; font-weight: 800; color: var(--muted); }
+.event-facts { display: grid; gap: 4px; margin: 0; }
+.event-facts p { margin: 0; white-space: pre-wrap; }
+.event-excerpt { white-space: pre-wrap; line-height: 1.6; margin-bottom: 8px; }
+.event-details > summary { color: var(--accent); cursor: pointer; font-weight: 800; padding: 12px 0; min-height: 44px; }
+.event-cancelled { display: inline-block; padding: 4px 10px; margin: 4px 0; border: 1px solid currentColor; border-radius: 8px; color: #9b2929; font-weight: 800; }
+:root[data-resolved="dark"] .event-cancelled { color: #ffabab; }
+.event-card.is-cancelled { border-left-color: #b74545; }
+.event-payment { padding: 12px; margin-top: 12px; background: var(--surface-2); border-radius: 12px; }
+.event-payment h5 { margin: 0; font-size: 15px; }
+#events-status.is-warning { padding: 10px; background: var(--surface-2); border-radius: 10px; }
+#event-new { margin-top: 12px; }
+@media (max-width: 420px) { .view-tabs { gap: 2px; padding: 4px; } .view-tabs button { font-size: 13px; padding: 8px 4px; } .event-card { padding: 12px; } }
+@media print { #events-panel { display: none !important; } }

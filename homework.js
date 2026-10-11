@@ -1,7 +1,7 @@
 /* Общие задания, личные отметки выполнения и интерфейс учителя. */
 (function () {
   'use strict';
-  var api = SchoolHomework.createClient(window.HOMEWORK_CONFIG);
+  var api = SchoolApp.api;
   var cacheKey = 'sch3a_shared_cache_v1:' + api.storageScope;
   var doneKey = 'sch3a_shared_done_v1:' + api.storageScope;
   var items = [], editing = null, loading = false, busy = false, hasMore = false;
@@ -46,46 +46,22 @@
   }
   function saveSnapshot() { hasSnapshot = true; write(cacheKey, { items: items, at: lastUpdated, more: hasMore }); }
   function snapshotStatus() { return lastUpdated ? 'Последняя загрузка: ' + new Date(lastUpdated).toLocaleString('ru-RU') + '.' : ''; }
-  function switchView(view, focus) {
-    ['schedule', 'homework'].forEach(function (name) {
-      var active = view === name;
-      ui[name + '-panel'].hidden = !active;
-      ui[name + '-tab'].setAttribute('aria-selected', String(active));
-      ui[name + '-tab'].tabIndex = active ? 0 : -1;
-    });
-    if (focus) ui[view + '-tab'].focus();
-  }
-  ['schedule', 'homework'].forEach(function (name) {
-    ui[name + '-tab'].addEventListener('click', function () { switchView(name); });
-    ui[name + '-tab'].addEventListener('keydown', function (e) {
-      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;
-      e.preventDefault(); e.stopPropagation();
-      switchView(e.key === 'Home' ? 'schedule' : e.key === 'End' ? 'homework' : name === 'homework' ? 'schedule' : 'homework', true);
-    });
-  });
-  function openTeacher() { if (!ui['teacher-access'].open) ui['teacher-access'].showModal(); }
-  ui['teacher-open'].addEventListener('click', openTeacher);
-  ui['teacher-close'].addEventListener('click', function () { ui['teacher-access'].close(); });
   function syncTeacher() {
     var teacher = api.isTeacher();
-    ui['teacher-login'].hidden = teacher;
-    ui['teacher-logout'].hidden = !teacher;
     ui['assignment-new'].hidden = !teacher || editorOpen;
     ui['assignment-editor'].hidden = !teacher || !editorOpen;
-    ui['teacher-open'].textContent = teacher ? 'Учитель' : 'Учителю';
-    ui['teacher-title'].textContent = teacher ? 'Режим учителя' : 'Вход для учителя';
   }
   function setBusy(value) {
-    busy = value;
-    ['teacher-login', 'assignment-editor'].forEach(function (id) {
+    busy = value; SchoolApp.setBusy('homework', value);
+    ['assignment-editor'].forEach(function (id) {
       ui[id].querySelectorAll('input, textarea, select, button').forEach(function (n) { n.disabled = value; });
     });
-    ['teacher-logout', 'teacher-open', 'assignment-new'].forEach(function (id) { ui[id].disabled = value; });
+    ['assignment-new'].forEach(function (id) { ui[id].disabled = value; });
     syncTeacher(); render();
   }
   function showError(error) {
     ui['assignment-notice'].textContent = error.message; syncTeacher();
-    if (!api.isTeacher()) { ui['teacher-status'].textContent = error.message; openTeacher(); }
+    if (!api.isTeacher()) { ui['teacher-status'].textContent = error.message; SchoolApp.openTeacher(); }
   }
   async function cleanup(paths) {
     if (!paths.length) return;
@@ -128,28 +104,7 @@
     renderPreviews(); syncTeacher(); ui['assignment-body'].focus();
   }
   ui['assignment-new'].addEventListener('click', function () { editorOpen = true; syncTeacher(); ui['assignment-subject'].focus(); });
-  function openPhoto(url, title) {
-    ui['photo-full'].src = url; ui['photo-full'].alt = title;
-    ui['photo-title'].textContent = title; ui['photo-original'].href = url;
-    ui['photo-canvas'].classList.remove('is-zoomed');
-    ui['photo-zoom'].setAttribute('aria-pressed', 'false'); ui['photo-zoom'].textContent = 'Увеличить';
-    ui['photo-viewer'].showModal();
-  }
-  ui['photo-close'].addEventListener('click', function () { ui['photo-viewer'].close(); });
-  ui['photo-zoom'].addEventListener('click', function () {
-    var zoom = ui['photo-canvas'].classList.toggle('is-zoomed');
-    ui['photo-zoom'].setAttribute('aria-pressed', String(zoom));
-    ui['photo-zoom'].textContent = zoom ? 'Уместить целиком' : 'Увеличить';
-  });
-  function photoButton(url, title) {
-    var button = node('button', 'photo-thumb'); button.type = 'button'; button.setAttribute('aria-label', 'Открыть: ' + title);
-    var img = node('img'); img.src = url; img.alt = title; img.loading = 'lazy';
-    img.addEventListener('error', function () {
-      img.hidden = true;
-      if (!button.querySelector('span')) button.appendChild(node('span', 'homework-hint', 'Фото недоступно. Нажмите, чтобы открыть.'));
-    });
-    button.appendChild(img); button.addEventListener('click', function () { openPhoto(url, title); }); return button;
-  }
+  var photoButton = SchoolApp.photoButton;
   function renderPreviews() {
     ui['photo-previews'].replaceChildren();
     photos.forEach(function (photo, index) {
@@ -277,26 +232,8 @@
   Object.values(SCHEDULE).forEach(function (day) { (day || []).forEach(function (item) { if (item.title) subjects.add(item.title); }); });
   Array.from(subjects).sort(function (a, b) { return a.localeCompare(b, 'ru'); }).forEach(function (s) { ui['assignment-subject'].appendChild(node('option', null, s)); });
   ui['assignment-subject'].appendChild(node('option', null, 'Общее задание')); resetEditor(); syncTeacher();
-  ui['teacher-login'].addEventListener('submit', async function (event) {
-    event.preventDefault(); if (busy) return;
-    setBusy(true); ui['teacher-status'].textContent = 'Проверяем вход…';
-    try {
-      await api.login(ui['teacher-email'].value, ui['teacher-password'].value);
-      ui['teacher-status'].textContent = 'Вы вошли как учитель. Задания публикуются для всего класса.';
-      ui['assignment-notice'].textContent = ''; syncTeacher(); ui['teacher-access'].close(); switchView('homework');
-    } catch (error) { ui['teacher-status'].textContent = error.message; }
-    finally {
-      ui['teacher-password'].value = ''; setBusy(false);
-      if (api.isTeacher()) (editorOpen ? ui['assignment-body'] : ui['assignment-new']).focus();
-    }
-  });
-  ui['teacher-logout'].addEventListener('click', async function () {
-    if (hasDraft() && !confirm('Выйти и отменить несохранённые изменения?')) return;
-    setBusy(true);
-    try { await discardDraft(); await api.logout(); ui['teacher-status'].textContent = 'Вы вышли из режима учителя.'; }
-    catch (error) { ui['teacher-status'].textContent = 'Вы вышли на этом устройстве. Сервер не подтвердил завершение сеанса — проверьте интернет.'; }
-    finally { syncTeacher(); setBusy(false); }
-  });
+  SchoolApp.registerEditor({ hasDraft: hasDraft, discard: discardDraft });
+  document.addEventListener('school-auth', function () { syncTeacher(); render(); });
   ui['assignment-editor'].addEventListener('submit', async function (event) {
     event.preventDefault(); if (busy || loading || !editorOpen) return;
     var wasEditing = !!editing, oldPaths = editing ? editing.photo_paths || [] : [];
@@ -332,7 +269,7 @@
   window.addEventListener('beforeunload', function (event) { if (hasDraft() || busy) { event.preventDefault(); event.returnValue = ''; } });
   if (!api.configured) {
     ui['assignments-status'].textContent = 'Общие задания пока не подключены.';
-    ui['teacher-open'].hidden = true; ui['teacher-access'].hidden = true; render(); return;
+    render(); return;
   }
   var cached = read(cacheKey);
   if (cached && Array.isArray(cached.items) && cached.items.every(validItem) && Number.isFinite(Date.parse(cached.at))) {

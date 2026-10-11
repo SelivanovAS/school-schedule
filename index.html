@@ -18,8 +18,9 @@
   <link rel="icon" href="./icon-192.png" type="image/png">
 
   <link rel="preload" href="./fonts/nunito-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="./styles.css?v=5">
-  <link rel="stylesheet" href="./homework.css?v=5">
+  <link rel="stylesheet" href="./styles.css?v=6">
+  <link rel="stylesheet" href="./homework.css?v=6">
+  <link rel="stylesheet" href="./events.css?v=6">
 
   <script>
     /* Тема применяется до первой отрисовки — иначе на тёмном телефоне
@@ -65,6 +66,7 @@
   <nav class="view-tabs" role="tablist" aria-label="Разделы сайта">
     <button id="schedule-tab" type="button" role="tab" aria-selected="true" aria-controls="schedule-panel">Расписание</button>
     <button id="homework-tab" type="button" role="tab" aria-selected="false" aria-controls="homework-panel" tabindex="-1">Задания домой <span id="homework-count" class="tab-count" hidden></span></button>
+    <button id="events-tab" type="button" role="tab" aria-selected="false" aria-controls="events-panel" tabindex="-1">События</button>
   </nav>
 
   <section id="schedule-panel" class="schedule-panel" role="tabpanel" aria-labelledby="schedule-tab">
@@ -124,6 +126,37 @@
     <p class="homework-hint">Отметка «Сделано» сохраняется только у вас на этом устройстве.</p>
   </section>
 
+  <section id="events-panel" class="homework-board" role="tabpanel" aria-labelledby="events-tab" hidden>
+    <div class="homework-heading"><div><h2>📌 События</h2><p class="homework-hint">Новости класса и важные даты</p></div><button id="events-refresh" class="link-btn" type="button">Обновить</button></div>
+    <button id="event-new" class="primary-btn" type="button" hidden>＋ Добавить публикацию</button>
+    <p id="events-status" class="homework-hint" role="status">Загружаем события…</p>
+    <p id="event-notice" class="homework-hint" role="status"></p>
+    <form id="event-editor" class="homework-form assignment-editor" hidden>
+      <h3 id="event-editor-title">Новая публикация</h3>
+      <label for="event-kind">Тип публикации</label><select id="event-kind"><option value="event">Мероприятие</option><option value="test">Контрольная</option><option value="announcement">Объявление</option></select>
+      <label for="event-title">Заголовок</label><input id="event-title" required maxlength="150" placeholder="Например: Научное Тесла-шоу">
+      <label for="event-body">Описание</label><textarea id="event-body" required maxlength="10000" rows="6" placeholder="Вставьте готовое сообщение или расскажите о событии"></textarea>
+      <label for="event-date">Дата события</label><input id="event-date" type="date" required min="2020-01-01" max="2100-12-31"><p id="event-date-hint" class="homework-hint">Укажите день, месяц и год.</p>
+      <label for="event-time">Время и группы · необязательно</label><input id="event-time" maxlength="300" placeholder="13:30 — 1 группа; 14:30 — 2 группа">
+      <label for="event-location">Место · необязательно</label><input id="event-location" maxlength="500" placeholder="Например: актовый зал школы">
+      <label for="event-cost">Стоимость · необязательно</label><input id="event-cost" maxlength="200" placeholder="450 ₽ или Бесплатно">
+      <label for="event-payment">Условия оплаты · необязательно</label><textarea id="event-payment" maxlength="3000" rows="3" placeholder="Как оплатить и что указать в комментарии"></textarea>
+      <label for="event-photos">Афиша или фотографии · до 4 изображений</label><input id="event-photos" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" multiple aria-describedby="event-photos-hint">
+      <p id="event-photos-hint" class="homework-hint">До 20 МБ каждое. Если HEIC не открывается, выберите JPEG. Публикация и изображения будут доступны всем по ссылке.</p>
+      <div id="event-photo-previews" class="photo-grid"></div>
+      <div class="homework-actions"><button class="primary-btn" id="event-preview" type="submit">Предпросмотр</button><button class="link-btn" id="event-discard" type="button">Отмена</button></div>
+      <p id="event-save-status" class="homework-hint" role="status"></p>
+    </form>
+    <section id="event-preview-panel" class="assignment-editor" aria-labelledby="event-preview-title" hidden>
+      <h3 id="event-preview-title" tabindex="-1">Предпросмотр публикации</h3><p class="homework-hint">Так публикацию увидят родители.</p><div id="event-preview-card"></div>
+      <div class="homework-actions"><button id="event-publish" class="primary-btn" type="button">Опубликовать</button><button id="event-back" class="link-btn" type="button">Вернуться к редактированию</button></div>
+      <p id="event-publish-status" class="homework-hint" role="status"></p>
+    </section>
+    <section aria-labelledby="events-announcements-title"><h3 id="events-announcements-title" class="deadline-title">Объявления</h3><div id="events-announcements"></div><button id="events-announcements-more" type="button" class="ghost-btn" hidden>Ещё объявления</button></section>
+    <section aria-labelledby="events-upcoming-title"><h3 id="events-upcoming-title" class="deadline-title">Ближайшие события</h3><div id="events-upcoming"></div><button id="events-upcoming-more" type="button" class="ghost-btn" hidden>Ещё события</button></section>
+    <details id="events-archive-details" class="assignment-archive"><summary>Архив</summary><div id="events-archive"></div><button id="events-archive-more" type="button" class="ghost-btn" hidden>Ещё из архива</button></details>
+  </section>
+
 </div>
 
 <dialog id="teacher-access" class="app-dialog" aria-labelledby="teacher-title">
@@ -177,11 +210,14 @@
 <!-- Печатная версия всей недели: видна только при печати -->
 <div class="print-only" id="print-view" aria-hidden="true"></div>
 
-<script src="./data.js?v=5"></script>
-<script src="./app.js?v=5"></script>
-<script src="./homework-config.js?v=5"></script>
-<script src="./homework-api.js?v=5"></script>
-<script src="./homework-photos.js?v=5"></script>
-<script src="./homework.js?v=5"></script>
+<script src="./data.js?v=6"></script>
+<script src="./app.js?v=6"></script>
+<script src="./homework-config.js?v=6"></script>
+<script src="./events-model.js?v=6"></script>
+<script src="./homework-api.js?v=6"></script>
+<script src="./homework-photos.js?v=6"></script>
+<script src="./school-app.js?v=6"></script>
+<script src="./homework.js?v=6"></script>
+<script src="./events.js?v=6"></script>
 </body>
 </html>
